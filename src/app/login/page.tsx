@@ -10,6 +10,7 @@ import {
   ArrowRightOutlined,
   MailOutlined,
 } from "@ant-design/icons";
+import { AxiosError } from "axios";
 import {
   Avatar,
   Card,
@@ -22,12 +23,16 @@ import {
   Col,
   Input,
   Space,
+  notification,
   Flex,
 } from "antd";
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useMutation } from "@tanstack/react-query";
+
+import { login } from "../auth/auth";
 
 const { Meta } = Card;
 
@@ -48,7 +53,59 @@ export default function LoginPage() {
   const handleRegister = () => {
     router.push("/register");
   };
+  interface ApiErrorResponse {
+    message: string[] | string;
+    error: string;
+    statusCode: number;
+  }
 
+  interface ApiSuccessResponse {
+    message: string;
+    data: {
+      accessToken: string;
+      refreshToken: string;
+    };
+  }
+
+  const { mutate: authenticate, isPending } = useMutation<
+    ApiSuccessResponse,
+    AxiosError<ApiErrorResponse>
+  >({
+    mutationFn: login,
+    onSuccess: (data) => {
+      notification.success({
+        message: "Login Successful",
+        description: data?.message || "You have logged in successfully!",
+      });
+      sessionStorage.setItem("accessToken", data.data.accessToken);
+      sessionStorage.setItem("refreshToken", data.data.refreshToken);
+      router.push("/");
+    },
+
+    onError: (error: AxiosError<ApiErrorResponse>) => {
+      const apiError = error.response?.data;
+      const messages = apiError?.message;
+
+      if (Array.isArray(messages)) {
+        messages.forEach((msg) => {
+          notification.error({
+            message: "Login failed",
+            description: msg,
+          });
+        });
+      } else {
+        notification.error({
+          message: "Login failed",
+          description:
+            messages || apiError?.error || "An error occurred during login.",
+        });
+      }
+    },
+  });
+
+  const onFinish = (values: any) => {
+    authenticate(values);
+  };
   return (
     <div className="relative w-full h-screen background bg-customBlack flex flex-col items-center justify-center">
       <Image
@@ -60,9 +117,16 @@ export default function LoginPage() {
         className="-z-10"
       />
       <Row className="card">
-      <Col className="custom-col" style={{ background: "#F4F5F6" }} xs={24} md={12}>
+        <Col
+          className="custom-col"
+          style={{ background: "#F4F5F6" }}
+          xs={24}
+          md={12}
+        >
           <div className="avatar-section">
-            <Meta avatar={<Avatar src="/mark8 logo.png" className="avatar" />} />
+            <Meta
+              avatar={<Avatar src="/mark8 logo.png" className="avatar" />}
+            />
           </div>
           <div className="bottom-section">
             <Typography.Title
@@ -84,7 +148,6 @@ export default function LoginPage() {
                 fontSize: "12px",
                 marginLeft: "40px",
                 fontWeight: 700,
-
               }}
               className="buttom-text"
             >
@@ -103,16 +166,18 @@ export default function LoginPage() {
             name="normal_login"
             className="login-form"
             initialValues={{ remember: true }}
-            onFinish={handleLogin}
+            onFinish={onFinish}
             style={{ margin: "40px" }}
             layout="vertical"
             requiredMark={false}
+            disabled={isPending}
           >
             <Form.Item
               name="email"
               label={<span className="custom-label">Email</span>}
               rules={[
                 { required: true, message: "Please input your Username!" },
+                { type: "email", message: "The input is not valid E-mail!" },
               ]}
               style={{ color: "#0C0D0D" }}
             >
@@ -128,7 +193,7 @@ export default function LoginPage() {
                 }
                 placeholder="Enter Email"
                 variant="filled"
-                style={{ height: "48px"  }}
+                style={{ height: "48px" }}
                 className="custom-input"
               />
             </Form.Item>
@@ -147,13 +212,12 @@ export default function LoginPage() {
                       fontSize: "18px",
                       marginRight: "20px",
                     }}
-                 
                   />
                 }
                 type="password"
                 placeholder="Enter Password"
                 variant="filled"
-                    className="custom-input"
+                className="custom-input"
                 iconRender={(visible) =>
                   visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
                 }
@@ -174,8 +238,8 @@ export default function LoginPage() {
                   type="primary"
                   htmlType="submit"
                   className="login-form-button"
-                  icon={<LoginOutlined />}
-                  iconPosition="end"
+                  icon={isPending ? null : <LoginOutlined />}
+                  loading={isPending}
                   style={{
                     height: "48px",
                     width: "125px",
@@ -184,7 +248,7 @@ export default function LoginPage() {
                     fontWeight: 700,
                   }}
                 >
-                  Log in
+                  {isPending ? "Logging in..." : "Log in"}
                 </Button>
               </Form.Item>
             </Flex>
@@ -192,39 +256,51 @@ export default function LoginPage() {
         </Col>
       </Row>
       <Row className="card-2">
-        <Col xs={24}  style={{ background: "#fff" }}>
+        <Col xs={24} style={{ background: "#fff" }}>
           <Flex
             justify="space-between"
             align="center"
             style={{ margin: "40px" }}
           >
             <Flex vertical>
-              <Typography  style={{ color: "#0C0D0D",fontSize:"14px",fontWeight:700 }}>new here ?</Typography>
-              <Typography.Link href="/register" style={{ color: "#495D69" ,fontSize:"14px",marginTop:"10px"}}>Create an account</Typography.Link>
+              <Typography
+                style={{ color: "#0C0D0D", fontSize: "14px", fontWeight: 700 }}
+              >
+                new here ?
+              </Typography>
+              <Typography.Link
+                href="/register"
+                style={{
+                  color: "#495D69",
+                  fontSize: "14px",
+                  marginTop: "10px",
+                }}
+              >
+                Create an account
+              </Typography.Link>
             </Flex>
             <Link href="/register">
-            <Button
-            className="custom-button"
-              icon={
-                <ArrowRightOutlined
-                  style={{
-                    color: "#C1CF16",
-                    fontSize: "18px",
-                  }}
-                />
-              }
-              iconPosition="end"
-              style={{
-                height: "48px",
-                width: "181px",
-                color: "black",
-                fontWeight: 700,
-              }}
-            >
-              Register Here{" "}
-            </Button>
+              <Button
+                className="custom-button"
+                icon={
+                  <ArrowRightOutlined
+                    style={{
+                      color: "#C1CF16",
+                      fontSize: "18px",
+                    }}
+                  />
+                }
+                iconPosition="end"
+                style={{
+                  height: "48px",
+                  width: "181px",
+                  color: "black",
+                  fontWeight: 700,
+                }}
+              >
+                Register Here{" "}
+              </Button>
             </Link>
-           
           </Flex>
         </Col>
       </Row>

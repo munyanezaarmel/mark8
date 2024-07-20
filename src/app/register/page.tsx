@@ -1,15 +1,17 @@
 // app/login/page.js
 "use client";
-import React, { useState } from "react";
+import React, { FormEventHandler, useState } from "react";
 import {
   LockOutlined,
   UserOutlined,
   LoginOutlined,
   EyeInvisibleOutlined,
   EyeTwoTone,
+  PhoneOutlined,
   ArrowRightOutlined,
   MailOutlined,
 } from "@ant-design/icons";
+import axios, { AxiosError } from "axios";
 import {
   Avatar,
   Card,
@@ -23,11 +25,17 @@ import {
   Input,
   Space,
   Flex,
+  notification,
 } from "antd";
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useMutation } from "@tanstack/react-query";
+
+import { signUp } from "../auth/auth";
+import PhoneInput from '../components/PhoneInput';
+
 
 const { Meta } = Card;
 export default function RegisterPage() {
@@ -40,15 +48,56 @@ export default function RegisterPage() {
 
   const router = useRouter();
 
-  const handleLogin = () => {
-    router.push("/");
+  interface ApiErrorResponse {
+    message: string[] | string;
+    error: string;
+    statusCode: number;
+  }
+
+  interface ApiSuccessResponse {
+    message: string;
+  }
+
+  const { mutate: register,isPending } = useMutation<
+    ApiSuccessResponse,
+    AxiosError<ApiErrorResponse>
+  >({
+    mutationFn: signUp,
+    onSuccess: (data) => {
+      notification.success({
+        message: "Registration Successful",
+        description: data?.message || "Account created successfully!",
+      });
+      router.push("/login");
+    },
+    onError: (error: AxiosError<ApiErrorResponse>) => {
+      const apiError = error.response?.data;
+      const messages = apiError?.message;
+
+      if (Array.isArray(messages)) {
+        messages.forEach((msg) => {
+          notification.error({
+            message: "Registration failed",
+            description: msg,
+          });
+        });
+      } else {
+        notification.error({
+          message: "Registration failed",
+          description:
+            messages ||
+            apiError?.error ||
+            "An error occurred during registration.",
+        });
+      }
+    },
+  });
+  const onFinish = (values: any) => {
+    register(values);
   };
 
-  const handleRegister = () => {
-    router.push("/register");
-  };
   return (
-    <div className="relative w-full h-screen background bg-customBlack flex flex-col items-center justify-center">
+    <div className="relative w-full h-screen background bg-customBlack flex flex-col items-center justify-center  overflow-auto">
       <Image
         src="/auth.png"
         alt="Image background"
@@ -57,15 +106,16 @@ export default function RegisterPage() {
         objectPosition="center"
         className="-z-10"
       />
-      <div className="card">
+      <div className="card max-h-[90vh] overflow-y-auto">
         <Form
           name="normal_login"
           className="login-form"
           initialValues={{ remember: true }}
-          onFinish={handleLogin}
-          style={{ margin: "40px" }}
+          style={{ margin: "20px" }}
           layout="vertical"
           requiredMark={false}
+          onFinish={onFinish}
+          disabled={isPending}
         >
           <Typography.Title level={2} style={{ color: "#0C0D0D" }}>
             Register
@@ -73,16 +123,16 @@ export default function RegisterPage() {
           <Row gutter={[16, 16]}>
             <Col xs={24} md={12}>
               <Form.Item
-                name="email"
-                label={<span className="custom-label">Email</span>}
+                name="firstName"
+                label={<span className="custom-label">First Name </span>}
                 rules={[
-                  { required: true, message: "Please input your Username!" },
+                  { required: true, message: "please Enter your First Name!" },
                 ]}
                 style={{ color: "#0C0D0D" }}
               >
                 <Input
                   prefix={
-                    <MailOutlined
+                    <UserOutlined
                       style={{
                         color: "#C1CF16",
                         fontSize: "18px",
@@ -90,7 +140,7 @@ export default function RegisterPage() {
                       }}
                     />
                   }
-                  placeholder="Enter Email"
+                  placeholder="Enter First Name"
                   variant="filled"
                   style={{ height: "48px" }}
                   className="custom-input"
@@ -99,16 +149,16 @@ export default function RegisterPage() {
             </Col>
             <Col xs={24} md={12}>
               <Form.Item
-                name="email"
-                label={<span className="custom-label">Email</span>}
+                name="lastName"
+                label={<span className="custom-label">Last Name </span>}
                 rules={[
-                  { required: true, message: "Please input your Username!" },
+                  { required: true, message: "Please input your Last Name!" },
                 ]}
                 style={{ color: "#0C0D0D" }}
               >
                 <Input
                   prefix={
-                    <MailOutlined
+                    <UserOutlined
                       style={{
                         color: "#C1CF16",
                         fontSize: "18px",
@@ -116,61 +166,7 @@ export default function RegisterPage() {
                       }}
                     />
                   }
-                  placeholder="Enter Email"
-                  variant="filled"
-                  style={{ height: "48px" }}
-                  className="custom-input"
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={[16, 16]}>
-            <Col xs={24} md={12}>
-              <Form.Item
-                name="email"
-                label={<span className="custom-label">Email</span>}
-                rules={[
-                  { required: true, message: "Please input your Username!" },
-                ]}
-                style={{ color: "#0C0D0D" }}
-              >
-                <Input
-                  prefix={
-                    <MailOutlined
-                      style={{
-                        color: "#C1CF16",
-                        fontSize: "18px",
-                        marginRight: "20px",
-                      }}
-                    />
-                  }
-                  placeholder="Enter Email"
-                  variant="filled"
-                  style={{ height: "48px" }}
-                  className="custom-input"
-                />
-              </Form.Item>
-            </Col>
-            <Col xs={24} md={12}>
-              <Form.Item
-                name="email"
-                label={<span className="custom-label">Email</span>}
-                rules={[
-                  { required: true, message: "Please input your Username!" },
-                ]}
-                style={{ color: "#0C0D0D" }}
-              >
-                <Input
-                  prefix={
-                    <MailOutlined
-                      style={{
-                        color: "#C1CF16",
-                        fontSize: "18px",
-                        marginRight: "20px",
-                      }}
-                    />
-                  }
-                  placeholder="Enter Email"
+                  placeholder="Enter Last Name"
                   variant="filled"
                   style={{ height: "48px" }}
                   className="custom-input"
@@ -184,7 +180,8 @@ export default function RegisterPage() {
                 name="email"
                 label={<span className="custom-label">Email</span>}
                 rules={[
-                  { required: true, message: "Please input your Username!" },
+                  { required: true, message: "Please input your Email!" },
+                  { type: "email", message: "The input is not valid E-mail!" },
                 ]}
                 style={{ color: "#0C0D0D" }}
               >
@@ -207,16 +204,20 @@ export default function RegisterPage() {
             </Col>
             <Col xs={24} md={12}>
               <Form.Item
-                name="email"
-                label={<span className="custom-label">Email</span>}
+                name="phoneNumber"
+                label={<span className="custom-label">Phone Number</span>}
                 rules={[
-                  { required: true, message: "Please input your Username!" },
+                  {
+                    required: true,
+                    message: "Please input your Phone Number!",
+                  },
                 ]}
                 style={{ color: "#0C0D0D" }}
               >
                 <Input
                   prefix={
-                    <MailOutlined
+                    <PhoneOutlined
+                      className="icon-profile icon-contact"
                       style={{
                         color: "#C1CF16",
                         fontSize: "18px",
@@ -224,21 +225,68 @@ export default function RegisterPage() {
                       }}
                     />
                   }
-                  placeholder="Enter Email"
+                  placeholder="250 --- --- ---"
                   variant="filled"
                   style={{ height: "48px" }}
                   className="custom-input"
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={[16, 16]}>
+            <Col xs={24} md={12}>
+              <Form.Item
+                name="password"
+                label={<span className="custom-label">Password</span>}
+                rules={[
+                  { required: true, message: "Please input your Password!" },
+                ]}
+                style={{ color: "#0C0D0D" }}
+              >
+                <Input.Password
+                  prefix={
+                    <LockOutlined
+                      style={{
+                        color: "#C1CF16",
+                        fontSize: "18px",
+                        marginRight: "20px",
+                      }}
+                    />
+                  }
+                  placeholder="Enter Password"
+                  variant="filled"
+                  type="password"
+                  style={{ height: "48px" }}
+                  className="custom-input"
+                  iconRender={(visible) =>
+                    visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+                  }
                 />
               </Form.Item>
             </Col>
           </Row>
 
           <Flex justify="space-between" align="center">
-            <Form.Item>
+            <Form.Item
+              valuePropName="checked"
+               name="agreeToTerms"
+              rules={[
+                {
+                  validator: (_, value) =>
+                    value
+                      ? Promise.resolve()
+                      : Promise.reject(
+                          "You must agree to the terms and conditions"
+                        ),
+                },
+              ]}
+            >
               <span className="flex items-center gap-2">
                 <Checkbox className="custom-checkbox" />
-                <Typography >I agree to the </Typography>
-                <Typography className="custom-link">Terms And condition </Typography>
+                <Typography>I agree to the </Typography>
+                <Typography className="custom-link">
+                  Terms And condition{" "}
+                </Typography>
               </span>
             </Form.Item>
             <Form.Item>
@@ -246,17 +294,18 @@ export default function RegisterPage() {
                 type="primary"
                 htmlType="submit"
                 className="login-form-button"
-                icon={<LoginOutlined />}
+                icon={isPending ? null : <LoginOutlined />}
+                loading={isPending}
                 iconPosition="end"
                 style={{
                   height: "48px",
-                  width: "125px",
                   background: "#C1CF16",
                   color: "black",
+
                   fontWeight: 700,
                 }}
               >
-                Register
+            {isPending ? "Creating accoung..." : "Register"}
               </Button>
             </Form.Item>
           </Flex>
@@ -268,7 +317,8 @@ export default function RegisterPage() {
           <Flex
             justify="space-between"
             align="center"
-            style={{ margin: "40px" }}
+            style={{ margin: "20px" }}
+            wrap="wrap" 
           >
             <Flex vertical>
               <Typography
@@ -288,7 +338,7 @@ export default function RegisterPage() {
                   marginTop: "10px",
                 }}
               >
-               Go to Login
+                Go to Login
               </Typography.Link>
             </Flex>
             <Link href="/login">
