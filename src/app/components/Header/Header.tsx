@@ -26,13 +26,20 @@ import CartDrawer from "../CartDrawer";
 
 const { Header } = Layout;
 const { Text } = Typography;
+interface CartItem {
+  id: string | number;
+  name: string;
+  thumbnail: string[];
+  unitPrice: number;
+  quantity: number;
+}
 
-const HeaderComponent = ({ scrollToOpenStore }) => {
+const HeaderComponent = ({ scrollToOpenStore }: { scrollToOpenStore: () => void }) => {
   const router = useRouter();
   const pathname = usePathname();
   const [menuVisible, setMenuVisible] = useState(false);
   const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
-  const [cartItems, setCartItems] = useState([]);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isCartOpen, setIsCartOpen] = useState(false);
   const isMobile = useMediaQuery({ maxWidth: 989 });
@@ -47,12 +54,13 @@ const HeaderComponent = ({ scrollToOpenStore }) => {
   const toggleMenu = () => {
     setMenuVisible(!menuVisible);
   };
+  
   const getSelectedKey = () => {
     if (pathname === "/") return "home";
     if (pathname === "/stores") return "stores";
     return "";
   };
-  const isActive = (path) => pathname === path;
+  const isActive = (path:any) => pathname === path;
 
   const menuItems = [
     {
@@ -214,8 +222,6 @@ const HeaderComponent = ({ scrollToOpenStore }) => {
       <CartDrawer
         visible={isCartOpen}
         onClose={() => setIsCartOpen(false)}
-        cartItems={[]} 
-        removeFromCart={() => {}}
       />
     </Header>
   );

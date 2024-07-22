@@ -32,6 +32,28 @@ import MainLayout from "../components/Layout";
 
 const { Title, Text } = Typography;
 const { Meta } = Card;
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  unitPrice: number;
+  thumbnail: string[];
+  category: {
+    id: string;
+    name: string;
+  };
+  reviews: {
+    rating: number;
+  }[];
+}
+
+interface CartItem {
+  id: string;
+  name: string;
+  unitPrice: number;
+  quantity: number;
+}
+
 
 function ProductDetails() {
   const { id } = useParams();
@@ -65,7 +87,7 @@ function ProductDetails() {
     }
   }, [product]);
 
-  const handleSaveProduct = (product) => {
+  const handleSaveProduct = (product: Product) => {
     if (isProductSaved(product.id)) {
       removeProduct(product.id);
     } else {
@@ -73,25 +95,25 @@ function ProductDetails() {
     }
   };
 
-  const saveCart = (updatedCart) => {
+  const saveCart = (updatedCart: any) => {
     localStorage.setItem("cart", JSON.stringify(updatedCart));
     setCartItems(updatedCart);
   };
 
-  const removeFromCart = (id) => {
-    const updatedCart = cartItems.filter((item) => item.id !== id);
-    saveCart(updatedCart);
-  };
+  // const removeFromCart = (id: string) => {
+  //   const updatedCart = cartItems.filter((item) => item.id !== id);
+  //   saveCart(updatedCart);
+  // };
 
-  const updateQuantity = (value) => {
+  const updateQuantity = (value: any) => {
     setQuantity(value);
     setTotalPrice(value * product.unitPrice);
   };
 
-  const total = cartItems.reduce(
-    (sum, item) => sum + item.unitPrice * item.quantity,
-    0
-  );
+  // const total = cartItems.reduce(
+  //   (sum, item) => sum + item.unitPrice * item.quantity,
+  //   0
+  // );
 
   const {
     data: recommendedProducts,
@@ -105,7 +127,7 @@ function ProductDetails() {
 
   const addToCart = () => {
     const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-    const existingItem = cart.find((item) => item.id === product.id);
+    const existingItem = cart.find((item:any) => item.id === product.id);
 
     if (existingItem) {
       existingItem.quantity += quantity;
@@ -129,8 +151,10 @@ function ProductDetails() {
 
   const averageRating =
     product.reviews.length > 0
-      ? product.reviews.reduce((acc, review) => acc + review.rating, 0) /
-        product.reviews.length
+      ? product.reviews.reduce(
+          (acc: any, review: any) => acc + review.rating,
+          0
+        ) / product.reviews.length
       : 0;
 
   return (
@@ -172,7 +196,7 @@ function ProductDetails() {
               }
             >
               <Row gutter={[8, 8]}>
-                {product.thumbnail.map((thumb, index) => (
+                {product.thumbnail.map((thumb: any, index: any) => (
                   <Col key={index} span={6}>
                     <div className="product-image-container">
                       <Image
@@ -319,9 +343,9 @@ function ProductDetails() {
         ) : (
           <Row gutter={[16, 16]}>
             {recommendedProducts?.data?.products
-              .filter((p) => p.id !== product.id)
+              .filter((p: any) => p.id !== product.id)
               .slice(0, 4)
-              .map((recommendedProduct) => (
+              .map((recommendedProduct: any) => (
                 <Col key={recommendedProduct.id} xs={24} sm={12} md={6}>
                   <Link href={`/product/${recommendedProduct.id}`}>
                     <Card

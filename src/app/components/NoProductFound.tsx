@@ -1,9 +1,11 @@
-// components/NoProductsFound.js
+
 import React from 'react';
 import { Card, Space, Typography, Button } from 'antd';
 import { ShopOutlined } from '@ant-design/icons';
-
-const NoProductsFound = ({ onClearFilters }) => (
+interface NoProductsFoundProps {
+    onClearFilters: () => void;
+  }
+const NoProductsFound: React.FC<NoProductsFoundProps> = ({ onClearFilters }) => (
   <div className="no-products-found">
     <Card className="custom-card">
       <Space direction="vertical" align="center" size="large">

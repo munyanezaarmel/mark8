@@ -138,7 +138,7 @@
 }
 
 .custom-icon:hover {
-  color: #40a9ff; /* Color on hover */
+  color: #40a9ff; 
 }
 .line-bottom{
   border-bottom: 1px solid red;
@@ -265,7 +265,7 @@
 }
 .ant-menu-item-selected,
 .ant-menu-item:hover {
-  color: #1890ff !important; /* Change this to your desired active color */
+  color: #1890ff !important; 
 }
 .header {
   display: flex;

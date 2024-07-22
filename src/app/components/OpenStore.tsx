@@ -1,8 +1,11 @@
 import React from 'react';
 import { Row, Col, Typography, Input, Button } from 'antd';
 import { MailOutlined, ArrowRightOutlined } from '@ant-design/icons';
+interface OpenStoreComponentProps {
+  openStoreRef: React.RefObject<HTMLDivElement>;
+}
 
-const OpenStoreComponent = ({ openStoreRef }) => {
+const OpenStoreComponent: React.FC<OpenStoreComponentProps> = ({ openStoreRef }) => {
   return (
     <Row className="open-store-section open-store" align="middle" justify="space-between" ref={openStoreRef}>
       <Col xs={24} sm={12} md={8} lg={8} xl={8}>

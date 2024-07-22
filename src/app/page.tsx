@@ -45,7 +45,7 @@ const HomePage = () => {
   const [cartItems, setCartItems] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const openStoreRef = useRef(null);
   const [noProductsFound, setNoProductsFound] = useState(false);
 
@@ -91,9 +91,9 @@ const HomePage = () => {
     }
   }, []);
 
-  const addToCart = (product) => {
+  const addToCart = (product: any) => {
     const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-    const existingItem = cart.find((item) => item.id === product.id);
+    const existingItem = cart.find((item: any) => item.id === product.id);
 
     if (existingItem) {
       existingItem.quantity += 1;
@@ -109,13 +109,13 @@ const HomePage = () => {
     });
   };
 
-  const handleCategorySelect = (categoryId) => {
-    setSelectedCategories((prev) => {
+  const handleCategorySelect = (categoryId: string | "all") => {
+    setSelectedCategories((prev:any) => {
       if (categoryId === "all") {
         return [];
       }
       if (prev.includes(categoryId)) {
-        return prev.filter((id) => id !== categoryId);
+        return prev.filter((id:any) => id !== categoryId);
       } else {
         return [...prev, categoryId];
       }
@@ -127,8 +127,8 @@ const HomePage = () => {
   };
   const filteredProducts =
     productsData?.pages
-      .flatMap((page) => page.data.products)
-      .filter((product) => {
+      .flatMap((page:any) => page.data.products)
+      .filter((product:any) => {
         const matchesSearch =
           product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           product.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -142,13 +142,13 @@ const HomePage = () => {
     setNoProductsFound(filteredProducts.length === 0);
   }, [filteredProducts]);
 
-  const removeFromCart = (productId) => {
+  const removeFromCart = (productId:any) => {
     setCartItems((prevItems) =>
-      prevItems.filter((item) => item.id !== productId)
+      prevItems.filter((item:any) => item.id !== productId)
     );
   };
 
-  const handleSaveProduct = (product) => {
+  const handleSaveProduct = (product:any) => {
     if (isProductSaved(product.id)) {
       removeProduct(product.id);
     } else {
@@ -156,7 +156,7 @@ const HomePage = () => {
     }
   };
 
-  const handleProductClick = (productId) => {
+  const handleProductClick = (productId:any) => {
     router.push(`/product/${productId}`);
   };
 
@@ -213,7 +213,7 @@ const HomePage = () => {
                     All
                   </Button>
                 </Col>
-                {categoriesData?.data.categories.map((category) => (
+                {categoriesData?.data.categories.map((category:any) => (
                   <Col key={category.id}>
                     <Button
                       className={`banner-button ${
@@ -351,8 +351,6 @@ const HomePage = () => {
           <CartDrawer
             visible={isCartOpen}
             onClose={() => setIsCartOpen(false)}
-            cartItems={cartItems}
-            removeFromCart={removeFromCart}
           />
         </Col>
       </Row>

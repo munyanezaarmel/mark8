@@ -1,4 +1,3 @@
-// components/CartDrawer.js
 import React, { useState, useEffect } from "react";
 import {
   Drawer,
@@ -14,8 +13,21 @@ import { DeleteOutlined, ShoppingCartOutlined } from "@ant-design/icons";
 
 const { Text } = Typography;
 
-const CartDrawer = ({ visible, onClose }) => {
-  const [cartItems, setCartItems] = useState([]);
+interface CartItem {
+  id: string | number;
+  name: string;
+  thumbnail: string[];
+  unitPrice: number;
+  quantity: number;
+}
+
+interface CartDrawerProps {
+  visible: boolean;
+  onClose: () => void;
+}
+
+const CartDrawer: React.FC<CartDrawerProps> = ({ visible, onClose }) => {
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
   useEffect(() => {
     const savedCart = localStorage.getItem("cart");
@@ -24,17 +36,17 @@ const CartDrawer = ({ visible, onClose }) => {
     }
   }, [visible]);
 
-  const saveCart = (updatedCart) => {
+  const saveCart = (updatedCart: CartItem[]) => {
     localStorage.setItem("cart", JSON.stringify(updatedCart));
     setCartItems(updatedCart);
   };
 
-  const removeFromCart = (id) => {
+  const removeFromCart = (id: string | number) => {
     const updatedCart = cartItems.filter((item) => item.id !== id);
     saveCart(updatedCart);
   };
 
-  const updateQuantity = (id, quantity) => {
+  const updateQuantity = (id: string | number, quantity: number) => {
     const updatedCart = cartItems.map((item) =>
       item.id === id ? { ...item, quantity: quantity } : item
     );
@@ -47,12 +59,11 @@ const CartDrawer = ({ visible, onClose }) => {
   );
 
   const handleCheckout = () => {
-    // Implement checkout logic here
     console.log("Proceeding to checkout");
   };
 
   const handleSaveForLater = () => {
-    // Implement save for later logic here
+ 
     console.log("Saving cart for later");
   };
 
@@ -61,7 +72,7 @@ const CartDrawer = ({ visible, onClose }) => {
       title={`My Cart (${cartItems.length})`}
       placement="right"
       onClose={onClose}
-      visible={visible}
+      open={visible}
       width={400}
       extra={
         <Space>
@@ -73,7 +84,7 @@ const CartDrawer = ({ visible, onClose }) => {
       }
     >
       <Text type="secondary" style={{ display: "block", marginBottom: 16 }}>
-      By proceeding you won&apos;t be charged yet
+        By proceeding you won&apos;t be charged yet
       </Text>
       <List
         itemLayout="horizontal"
@@ -87,7 +98,7 @@ const CartDrawer = ({ visible, onClose }) => {
                 {index + 1}
               </Text>
               <Image
-                src={item.thumbnail[0] || "/thumbnail-not-found.jpg"}
+                src={item.thumbnail[0] || "https://res.cloudinary.com/ds7a3a2yb/image/upload/v1720453900/mark8/tyzrzvivq3odqubwqggz.jpg"}
                 alt={item.name}
                 width={50}
                 height={50}
@@ -111,7 +122,7 @@ const CartDrawer = ({ visible, onClose }) => {
                 <InputNumber
                   min={1}
                   value={item.quantity}
-                  onChange={(value) => updateQuantity(item.id, value)}
+                  onChange={(value) => updateQuantity(item.id, value as number)}
                   style={{ width: 50 }}
                 />
                 <Button

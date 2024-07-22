@@ -15,7 +15,7 @@ interface MainLayoutProps {
 }
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
-  const openStoreRef = useRef(null);
+  const openStoreRef = useRef<HTMLDivElement>(null);
 
   const scrollToOpenStore = () => {
     openStoreRef.current?.scrollIntoView({ behavior: "smooth" });

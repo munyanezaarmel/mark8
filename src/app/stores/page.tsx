@@ -31,6 +31,27 @@ import { useMediaQuery } from "react-responsive";
 
 const { Header, Content } = Layout;
 const { Title, Text } = Typography;
+interface Store {
+  id: string;
+  name: string;
+  image: string;
+  description: string;
+
+}
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  unitPrice: number;
+  thumbnail: string[];
+  category: {
+    id: string;
+    name: string;
+  };
+  reviews: {
+    rating: number;
+  }[];
+}
 
 const StorePage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -44,7 +65,7 @@ const StorePage = () => {
 
   const stores = storesData?.data?.stores || [];
 
-  const filteredStores = stores.filter((store) =>
+  const filteredStores = stores.filter((store: any) =>
     store.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -52,7 +73,6 @@ const StorePage = () => {
     <MainLayout>
       <Content style={{ padding: "0 20px" }}>
         {" "}
-        {/* Reduced padding for mobile */}
         <div style={{ padding: "24px 0" }} className="back-store mt-8">
           <Title level={isLargeScreen ? 2 : 3} style={{ textAlign: "center" }}>
             <span className="highlight">Mark8</span> <span>Stores</span>
@@ -98,7 +118,7 @@ const StorePage = () => {
         </div>
         <Divider style={{ margin: "24px 0", width: "100%" }} />
         <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
-          {filteredStores.map((store) => (
+          {filteredStores.map((store: any) => (
             <Col xs={24} key={store.id}>
               <StoreCard store={store} />
             </Col>
@@ -109,7 +129,7 @@ const StorePage = () => {
   );
 };
 
-const StoreCard = ({ store }) => {
+const StoreCard = ({ store }: { store: any }) => {
   const router = useRouter();
   const isMobile = useMediaQuery({ maxWidth: 768 });
 
@@ -120,7 +140,7 @@ const StoreCard = ({ store }) => {
 
   const products = productsData?.data?.products || [];
 
-  const handleProductClick = (productId) => {
+  const handleProductClick = (productId: string) => {
     router.push(`/product/${productId}`);
   };
 
@@ -202,7 +222,7 @@ const StoreCard = ({ store }) => {
             <List
               grid={{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 3, xl: 3, xxl: 3 }}
               dataSource={products.slice(0, 3)}
-              renderItem={(product) => (
+              renderItem={(product:Product) => (
                 <List.Item>
                   <Card
                     className="custom-card cursor-pointer"

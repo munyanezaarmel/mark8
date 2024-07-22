@@ -18,15 +18,29 @@ import { useRouter } from "next/navigation";
 
 const { Meta } = Card;
 const { Title } = Typography;
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  unitPrice: number;
+  thumbnail: string[];
+  category: {
+    id: string;
+    name: string;
+  };
+  reviews: {
+    rating: number;
+  }[];
+}
 
 export default function SavedProducts() {
   const { savedProducts, saveProduct, removeProduct, isProductSaved } =
-    useSavedProducts();
+    useSavedProducts()as any;
   const router = useRouter();
 
-  const addToCart = (product) => {
+  const addToCart = (product:Product) => {
     const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-    const existingItem = cart.find((item) => item.id === product.id);
+    const existingItem = cart.find((item:Product) => item.id === product.id);
 
     if (existingItem) {
       existingItem.quantity += 1;
@@ -41,7 +55,7 @@ export default function SavedProducts() {
       icon: <ShoppingCartOutlined style={{ color: "#C1CF16" }} />,
     });
   };
-  const handleSaveProduct = (product) => {
+  const handleSaveProduct = (product:Product) => {
     if (isProductSaved(product.id)) {
       removeProduct(product.id);
     } else {
@@ -49,7 +63,7 @@ export default function SavedProducts() {
     }
   };
 
-  const handleProductClick = (productId) => {
+  const handleProductClick = (productId: string | number) => {
     router.push(`/product/${productId}`);
   };
 
@@ -60,12 +74,12 @@ export default function SavedProducts() {
           Saved Products
         </Title>
         <Typography style={{ textAlign: "center" }}>
-        {savedProducts.length} saved
+          {savedProducts.length} saved
         </Typography>
       </div>
       <Col xs={24} sm={24} md={24} lg={24} xl={24}>
         <Row gutter={[16, 16]}>
-          {savedProducts.map((product) => (
+          {savedProducts.map((product:any) => (
             <Col key={product.id} xs={24} sm={12} md={8} lg={8}>
               <Card
                 className="custom-card cursor-pointer"
