@@ -1,110 +1,53 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import {
-  InstagramOutlined,
-  XOutlined,
-  YoutubeOutlined,
-  LinkedinOutlined,
-  UserOutlined,
-  StarOutlined,
-  HomeOutlined,
   ShopOutlined,
   DownOutlined,
   SearchOutlined,
   ShoppingCartOutlined,
-  CheckOutlined,
-  ArrowRightOutlined,
   HeartOutlined,
-  MenuOutlined,
   HeartFilled,
   PullRequestOutlined,
-  PhoneOutlined,
-  MailOutlined,
 } from "@ant-design/icons";
 import {
-  Breadcrumb,
   Row,
   Col,
-  Layout,
-  Menu,
-  theme,
-  Avatar,
   Typography,
-  Flex,
   Input,
-  Space,
-  Drawer,
   Button,
-  Modal,
-  Pagination,
-  Badge,
-  Divider,
-  notification,
   Card,
+  Space,
+  notification,
 } from "antd";
 import Image from "next/image";
 import { withAuth } from "./components/WithAuth";
-
-const { Meta } = Card;
-
-import UserProfileDropdown from "./components/UserProfileDropdown";
+import MainLayout from "./components/Layout";
 import { useAuth } from "./hooks/useAuth";
 import CartDrawer from "./components/CartDrawer";
 import { fetchCategories, fetchProducts, fetchStores } from "./auth/auth";
-import {
-  useQuery,
-  keepPreviousData,
-  useInfiniteQuery,
-} from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { useSavedProducts } from "./hooks/useSavedProduct";
-import HeartIcon from "./components/HeartIcon";
-
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import StoresSidebar from "./components/SideBar/StoresSidebar";
-
-interface PaginationData {
-  totalRecords: number;
-}
-
-interface Category {
-  id: string;
-  name: string;
-}
-interface CategoriesData {
-  categories: Category[];
-  pagination: PaginationData;
-}
-
-interface FetchCategoriesResponse {
-  data: CategoriesData;
-}
 import { useMediaQuery } from "react-responsive";
+import NoProductsFound from "./components/NoProductFound";
 
-const { Header, Content, Footer, Sider } = Layout;
 const { Title, Text } = Typography;
+const { Meta } = Card;
 
 const HomePage = () => {
   const router = useRouter();
-  const [menuVisible, setMenuVisible] = useState(false);
   const isMobile = useMediaQuery({ maxWidth: 989 });
   const { user, isPending, isAuthenticated } = useAuth();
   const { savedProducts, saveProduct, removeProduct, isProductSaved } =
     useSavedProducts();
-  const [page, setPage] = useState(1);
-  const [products, setProducts] = useState([]);
-  const [hasMore, setHasMore] = useState(true);
   const [cartItems, setCartItems] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
-  const [modalSearchTerm, setModalSearchTerm] = useState("");
-
-  const [quantity, setQuantity] = useState(1);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
   const openStoreRef = useRef(null);
-  const recordsPerPage = 10;
+  const [noProductsFound, setNoProductsFound] = useState(false);
 
   const {
     data: categoriesData,
@@ -123,6 +66,7 @@ const HomePage = () => {
     queryKey: ["stores"],
     queryFn: fetchStores,
   });
+
   const {
     data: productsData,
     isLoading: isLoadingProducts,
@@ -139,12 +83,14 @@ const HomePage = () => {
       return pages.length + 1;
     },
   });
+
   useEffect(() => {
     const savedCartItems = localStorage.getItem("cartItems");
     if (savedCartItems) {
       setCartItems(JSON.parse(savedCartItems));
     }
   }, []);
+
   const addToCart = (product) => {
     const cart = JSON.parse(localStorage.getItem("cart") || "[]");
     const existingItem = cart.find((item) => item.id === product.id);
@@ -162,10 +108,7 @@ const HomePage = () => {
       icon: <ShoppingCartOutlined style={{ color: "#C1CF16" }} />,
     });
   };
-  const handleSearch = () => {
-    setSearchTerm(modalSearchTerm);
-    setIsSearchModalVisible(false);
-  };
+
   const handleCategorySelect = (categoryId) => {
     setSelectedCategories((prev) => {
       if (categoryId === "all") {
@@ -177,6 +120,10 @@ const HomePage = () => {
         return [...prev, categoryId];
       }
     });
+  };
+  const handleClearFilters = () => {
+    setSearchTerm("");
+    setSelectedCategories([]);
   };
   const filteredProducts =
     productsData?.pages
@@ -191,6 +138,10 @@ const HomePage = () => {
         return matchesSearch && matchesCategory;
       }) || [];
 
+  useEffect(() => {
+    setNoProductsFound(filteredProducts.length === 0);
+  }, [filteredProducts]);
+
   const removeFromCart = (productId) => {
     setCartItems((prevItems) =>
       prevItems.filter((item) => item.id !== productId)
@@ -204,19 +155,9 @@ const HomePage = () => {
       saveProduct(product);
     }
   };
-  const scrollToOpenStore = () => {
-    openStoreRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
 
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage);
-  };
   const handleProductClick = (productId) => {
     router.push(`/product/${productId}`);
-  };
-
-  const handleStores = () => {
-    router.push("/stores");
   };
 
   if (isPending) {
@@ -227,261 +168,90 @@ const HomePage = () => {
     router.push("/login");
     return <div>Please log in to view this page.</div>;
   }
-  const handleLogin = () => {
-    router.push("/login");
-  };
-
-  const handleRegister = () => {
-    router.push("/register");
-  };
-
-  const toggleMenu = () => {
-    setMenuVisible(!menuVisible);
-  };
-
-  const menuItems = [
-    {
-      key: "home",
-      icon: <HomeOutlined className="menu-icon active" />,
-      label: <span className="menu-text">Home</span>,
-    },
-    {
-      key: "stores",
-      icon: <ShopOutlined className="menu-icon" />,
-      label: <span className="menu-text">Stores</span>,
-      onClick: handleStores,
-    },
-  ];
-
-  const HeaderContent = () => (
-    <>
-      <div className="flex lg:pl-12">
-        <div className="logo gap-4">
-          <Image
-            src="/mark8 logo.png"
-            alt="Mark8 Logo"
-            width={40}
-            height={40}
-          />
-          <div className="flex-col flex ">
-            <Text strong>Mark8</Text>
-            <Text type="secondary">by Awesomity Lab</Text>
-          </div>
-        </div>
-
-        <div>
-          {!isMobile && (
-            <Menu
-              className=""
-              mode="horizontal"
-              items={menuItems}
-              selectedKeys={["home"]}
-            ></Menu>
-          )}
-        </div>
-      </div>
-
-      {!isMobile && (
-        <Space>
-          <div className="header-actions pr-12">
-            <SearchOutlined
-              className="search-icon header-icon"
-              onClick={() => setIsSearchModalVisible(true)}
-            />
-            <Modal
-              visible={isSearchModalVisible}
-              footer={null}
-              closable={false}
-              className="search-modal"
-              maskClosable={true}
-              onCancel={() => setIsSearchModalVisible(false)}
-              centered={true}
-            >
-              <div className="search-container gap-4">
-                <Typography>Search</Typography>
-                <Input
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="open-transparent"
-                  size="large"
-                  placeholder="Search products, stores, etc..."
-                  prefix={
-                    <SearchOutlined
-                      className="icon-color"
-                      style={{ marginRight: "10px" }}
-                    />
-                  }
-                />
-                <Button
-                  onClick={() => {
-                    setIsSearchModalVisible(false);
-                  }}
-                  icon={<SearchOutlined />}
-                  iconPosition="end"
-                >
-                  Search
-                </Button>
-              </div>
-            </Modal>
-            <div
-              className="flex gap-1 cursor-pointer"
-              onClick={() => setIsCartOpen(true)}
-            >
-              {" "}
-              <ShoppingCartOutlined className="header-icon" />
-              My Cart
-            </div>
-
-            <Link href="/saved">
-              <div className="flex gap-1">
-                <HeartOutlined />
-                Saved ({savedProducts.length})
-              </div>
-            </Link>
-
-            <Button
-              className="font-bold"
-              icon={<ShopOutlined className="icon-color" />}
-              iconPosition="end"
-              onClick={scrollToOpenStore}
-            >
-              Open a store
-            </Button>
-            <UserProfileDropdown />
-          </div>
-        </Space>
-      )}
-      {isMobile && (
-        <Button type="text" icon={<MenuOutlined />} onClick={toggleMenu} />
-      )}
-    </>
-  );
 
   return (
-    <Layout style={{ backgroundColor: "#fff" }}>
-      <Header
-        style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 1,
-          width: "100%",
-          padding: "0 20px",
-          borderBottom: "1px solid #f0f0f0",
-        }}
-      >
-        <HeaderContent />
-      </Header>
+    <MainLayout
+      savedProductsCount={savedProducts.length}
+      setIsCartOpen={setIsCartOpen}
+    >
+      <Row gutter={[16, 16]} justify="center">
+        <Col xs={24} sm={24} md={24} lg={22} xl={23}>
+          <div className="hero-section text-center ">
+            <Title level={2}>
+              <span className="highlight-1"> Welcome to</span>{" "}
+              <span className="highlight">Mark8</span>
+            </Title>
+            <Text className="text-white">58 Products</Text>
+            <Row gutter={[16, 16]} justify="center">
+              <Col xs={24} sm={18} md={12} lg={10} xl={10}>
+                <div className="flex items-center justify-center">
+                  <Input
+                    size="large"
+                    placeholder="What are you looking for?"
+                    prefix={<SearchOutlined className="icon-color" />}
+                    suffix={
+                      <PullRequestOutlined style={{ fontSize: "20px" }} />
+                    }
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    style={{ marginTop: 20 }}
+                    className="search-transparent"
+                  />
+                </div>
+              </Col>
+            </Row>
 
-      <Drawer placement="right" onClose={toggleMenu} visible={menuVisible}>
-        <Menu mode="vertical" items={menuItems} />
-        <div style={{ padding: "20px 0" }}>
-          <Input.Search placeholder="Search" style={{ marginBottom: 20 }} />
-          <Button
-            icon={<ShopOutlined className="icon-color" />}
-            iconPosition="end"
-            className="font-bold"
-            onClick={() => {
-              scrollToOpenStore();
-              toggleMenu();
-            }}
-          >
-            Open a store
-          </Button>
-          <div
-            onClick={() => setIsCartOpen(true)}
-            style={{ padding: "20px 0" }}
-            className="flex gap-4"
-          >
-            <ShoppingCartOutlined className="header-icon" />
-            My Cart
-          </div>
-          <Link href="/saved">
-            <div style={{ padding: "20px 0" }} className="flex gap-4">
-              <HeartOutlined className="header-icon" />
-              Saved ({savedProducts.length})
-            </div>
-          </Link>
-
-          <UserProfileDropdown />
-        </div>
-      </Drawer>
-
-      <Content style={{ padding: "0 20px" }}>
-        <Row gutter={[16, 16]} justify="center">
-          <Col xs={24} sm={24} md={24} lg={22} xl={23}>
-            <div className="hero-section text-center ">
-              <Title level={2}>
-                <span className="highlight-1"> Welcome to</span>{" "}
-                <span className="highlight">Mark8</span>
-              </Title>
-              <Text className="text-white">58 Products</Text>
-              <Row gutter={[16, 16]} justify="center">
-                <Col xs={24} sm={18} md={12} lg={10} xl={10}>
-                  <div className="flex items-center justify-center">
-                    <Input
-                      size="large"
-                      placeholder="What are you looking for?"
-                      prefix={<SearchOutlined className="icon-color" />}
-                      suffix={
-                        <PullRequestOutlined style={{ fontSize: "20px" }} />
-                      }
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      style={{ marginTop: 20 }}
-                      className="search-transparent"
-                    />
-                  </div>
+            <div className="category-buttons flex items-center justify-center ">
+              <Row gutter={[16, 16]} className="categories-grid">
+                <Col>
+                  <Button
+                    className={`banner-button ${
+                      selectedCategories.length === 0 ? "selected" : ""
+                    }`}
+                    onClick={() => handleCategorySelect("all")}
+                  >
+                    All
+                  </Button>
                 </Col>
-              </Row>
-
-              <div className="category-buttons flex items-center justify-center ">
-                <Row gutter={[16, 16]} className="categories-grid">
-                  <Col>
+                {categoriesData?.data.categories.map((category) => (
+                  <Col key={category.id}>
                     <Button
                       className={`banner-button ${
-                        selectedCategories.length === 0 ? "selected" : ""
+                        selectedCategories.includes(category.id)
+                          ? "selected"
+                          : ""
                       }`}
-                      onClick={() => handleCategorySelect("all")}
+                      onClick={() => handleCategorySelect(category.id)}
                     >
-                      All
+                      {category.name}
                     </Button>
                   </Col>
-                  {categoriesData?.data.categories.map((category) => (
-                    <Col key={category.id}>
-                      <Button
-                        className={`banner-button ${
-                          selectedCategories.includes(category.id)
-                            ? "selected"
-                            : ""
-                        }`}
-                        onClick={() => handleCategorySelect(category.id)}
-                      >
-                        {category.name}
-                      </Button>
-                    </Col>
-                  ))}
-                </Row>
-              </div>
+                ))}
+              </Row>
+            </div>
+          </div>
+
+          <div className="products-section">
+            <div
+              className="flex items-center gap-4 mb-8"
+              style={{ fontSize: "24px" }}
+            >
+              <Title level={4}>
+                <ShopOutlined className="icon-color mr-4" />
+                Recent Products ({filteredProducts.length})
+              </Title>
             </div>
 
-            <div className="products-section">
-              <div
-                className="flex items-center gap-4 mb-8"
-                style={{ fontSize: "24px" }}
-              >
-                <Title level={4}>
-                  {" "}
-                  <ShopOutlined className="icon-color mr-4" />
-                  Recent Products (100)
-                </Title>
-              </div>
-
-              <Row gutter={[16, 16]}>
-                <Col xs={24} sm={24} md={24} lg={24} xl={18}>
+            <Row gutter={[16, 16]}>
+              <Col xs={24} sm={24} md={24} lg={24} xl={18}>
+                {noProductsFound ? (
+                  <NoProductsFound onClearFilters={handleClearFilters} />
+                ) : (
                   <Row gutter={[16, 16]}>
                     {filteredProducts.map((product) => (
                       <Col key={product.id} xs={24} sm={12} md={8} lg={8}>
                         <Card
-                          className="custom-card"
+                          className="custom-card cursor-pointer"
                           cover={
                             <div className="product-image-container">
                               <img
@@ -551,126 +321,42 @@ const HomePage = () => {
                       </Col>
                     ))}
                   </Row>
-                </Col>
-
-                <Col xs={24} sm={24} md={24} lg={24} xl={6}>
-                  {isLoadingStores ? (
-                    <div>Loading stores...</div>
-                  ) : storesError ? (
-                    <div>Error loading stores: {storesError.message}</div>
-                  ) : (
-                    <StoresSidebar stores={storesData?.data?.stores || []} />
-                  )}
-                </Col>
-              </Row>
-            </div>
-            <div style={{ textAlign: "center", marginTop: 20 }}>
-              {hasNextPage && (
-                <Button
-                  icon={<DownOutlined className="icon-color" />}
-                  onClick={() => fetchNextPage()}
-                  disabled={isFetchingNextPage}
-                  style={{ marginTop: "20px" }}
-                  className="font-bold load-more"
-                >
-                  {isFetchingNextPage ? "Loading more..." : "Load More"}
-                </Button>
-              )}
-            </div>
-            <CartDrawer
-              visible={isCartOpen}
-              onClose={() => setIsCartOpen(false)}
-              cartItems={cartItems}
-              removeFromCart={removeFromCart}
-            />
-            <Row
-              className="open-store-section open-store"
-              align="middle"
-              justify="space-between"
-              ref={openStoreRef}
-            >
-              <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-                <Typography.Text className="banner-text">
-                  Open your
-                </Typography.Text>
-                <Typography.Text className="banner-text-2">
-                  {" "}
-                  Store
-                </Typography.Text>
+                )}
               </Col>
 
-              <Col xs={24} sm={12} md={16} lg={16} xl={12}>
-                <div className="flex gap-4">
-                  <Input
-                    className="open-transparent"
-                    size="large"
-                    placeholder="Enter your Email"
-                    prefix={
-                      <MailOutlined
-                        className="icon-color"
-                        style={{ marginRight: "10px" }}
-                      />
-                    }
-                  />
-                  <Button
-                    size="large"
-                    type="primary"
-                    htmlType="submit"
-                    className="login-form-button"
-                    icon={<ArrowRightOutlined />}
-                    iconPosition="end"
-                    style={{
-                      width: "125px",
-                      background: "#C1CF16",
-                      color: "black",
-                      fontWeight: 600,
-                    }}
-                  >
-                    Submit
-                  </Button>
-                </div>
+              <Col xs={24} sm={24} md={24} lg={24} xl={6}>
+                {isLoadingStores ? (
+                  <div>Loading stores...</div>
+                ) : storesError ? (
+                  <div>Error loading stores: {storesError.message}</div>
+                ) : (
+                  <StoresSidebar stores={storesData?.data?.stores || []} />
+                )}
               </Col>
             </Row>
-          </Col>
-        </Row>
-      </Content>
-
-      <Footer style={{ background: "#F4F5F6" }}>
-        <Row justify="space-between" align="middle">
-          <Col xs={24} sm={12} md={12} lg={6}>
-            <Space>
-              <Image
-                src="/mark8 logo.png"
-                alt="Mark8 Logo"
-                width={40}
-                height={40}
-              />
-              <Text strong>Mark8</Text>
-            </Space>
-          </Col>
-          <Col xs={24} sm={12} md={8} lg={6}>
-            <div className="flex items-center">
-              <Space>
-                <Typography className="font-bold">
-                  ©{new Date().getFullYear()}.Mark8
-                </Typography>
-                <Typography className="footer-text">
-                  By Awesomity Lab
-                </Typography>
-              </Space>
-            </div>
-          </Col>
-          <Col>
-            <Space>
-              <XOutlined />
-              <InstagramOutlined />
-              <YoutubeOutlined />
-              <LinkedinOutlined />
-            </Space>
-          </Col>
-        </Row>
-      </Footer>
-    </Layout>
+          </div>
+          <div style={{ textAlign: "center", marginTop: 20 }}>
+            {hasNextPage && (
+              <Button
+                icon={<DownOutlined className="icon-color" />}
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+                style={{ marginTop: "20px" }}
+                className="font-bold load-more"
+              >
+                {isFetchingNextPage ? "Loading more..." : "Load More"}
+              </Button>
+            )}
+          </div>
+          <CartDrawer
+            visible={isCartOpen}
+            onClose={() => setIsCartOpen(false)}
+            cartItems={cartItems}
+            removeFromCart={removeFromCart}
+          />
+        </Col>
+      </Row>
+    </MainLayout>
   );
 };
 

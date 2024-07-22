@@ -79,7 +79,7 @@ export default function LoginPage() {
       });
       sessionStorage.setItem("accessToken", data.data.accessToken);
       sessionStorage.setItem("refreshToken", data.data.refreshToken);
-      router.push("/");
+      window.location.href = "/";
     },
 
     onError: (error: AxiosError<ApiErrorResponse>) => {
@@ -106,6 +106,13 @@ export default function LoginPage() {
   const onFinish = (values: any) => {
     authenticate(values);
   };
+
+  function onregister() {
+    window.location.href = "/register";
+  }
+  function onforgot() {
+    window.location.href = "/forgot-Password";
+  }
   return (
     <div className="relative w-full h-screen background bg-customBlack flex flex-col items-center justify-center">
       <Image
@@ -227,11 +234,12 @@ export default function LoginPage() {
 
             <Flex justify="space-between" align="center">
               <Form.Item>
-                <Link href="/forgot-Password" passHref>
-                  <Typography className="custom-link">
-                    Forgot password
-                  </Typography>
-                </Link>
+                <Typography
+                  className="custom-link cursor-pointer"
+                  onClick={onforgot}
+                >
+                  Forgot password
+                </Typography>
               </Form.Item>
               <Form.Item>
                 <Button
@@ -269,7 +277,7 @@ export default function LoginPage() {
                 new here ?
               </Typography>
               <Typography.Link
-                href="/register"
+                onClick={onregister}
                 style={{
                   color: "#495D69",
                   fontSize: "14px",
@@ -279,28 +287,28 @@ export default function LoginPage() {
                 Create an account
               </Typography.Link>
             </Flex>
-            <Link href="/register">
-              <Button
-                className="custom-button"
-                icon={
-                  <ArrowRightOutlined
-                    style={{
-                      color: "#C1CF16",
-                      fontSize: "18px",
-                    }}
-                  />
-                }
-                iconPosition="end"
-                style={{
-                  height: "48px",
-                  width: "181px",
-                  color: "black",
-                  fontWeight: 700,
-                }}
-              >
-                Register Here{" "}
-              </Button>
-            </Link>
+
+            <Button
+              onClick={onregister}
+              className="custom-button"
+              icon={
+                <ArrowRightOutlined
+                  style={{
+                    color: "#C1CF16",
+                    fontSize: "18px",
+                  }}
+                />
+              }
+              iconPosition="end"
+              style={{
+                height: "48px",
+                width: "181px",
+                color: "black",
+                fontWeight: 700,
+              }}
+            >
+              Register Here{" "}
+            </Button>
           </Flex>
         </Col>
       </Row>

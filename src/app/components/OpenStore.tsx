@@ -2,7 +2,7 @@ import React from 'react';
 import { Row, Col, Typography, Input, Button } from 'antd';
 import { MailOutlined, ArrowRightOutlined } from '@ant-design/icons';
 
-const OpenStore = ({ openStoreRef }) => {
+const OpenStoreComponent = ({ openStoreRef }) => {
   return (
     <Row className="open-store-section open-store" align="middle" justify="space-between" ref={openStoreRef}>
       <Col xs={24} sm={12} md={8} lg={8} xl={8}>
@@ -26,7 +26,7 @@ const OpenStore = ({ openStoreRef }) => {
             icon={<ArrowRightOutlined />}
             iconPosition="end"
             style={{
-              width: '125px',
+             
               background: '#C1CF16',
               color: 'black',
               fontWeight: 600,
@@ -40,4 +40,4 @@ const OpenStore = ({ openStoreRef }) => {
   );
 };
 
-export default OpenStore;
+export default OpenStoreComponent;
