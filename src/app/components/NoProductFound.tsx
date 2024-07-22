@@ -10,7 +10,7 @@ const NoProductsFound = ({ onClearFilters }) => (
         <ShopOutlined style={{ fontSize: '48px', color: '#C1CF16' }} />
         <Typography.Title level={3}>No Products Found</Typography.Title>
         <Typography.Text>
-          We couldn't find any products matching your search or selected categories.
+          We couldn&apos;t find any products matching your search or selected categories.
         </Typography.Text>
         <Button
           type="primary"
