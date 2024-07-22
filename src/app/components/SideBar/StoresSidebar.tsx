@@ -27,7 +27,7 @@ const StoresSidebar = ({ stores }) => {
         <List
           itemLayout="horizontal"
           dataSource={filteredStores}
-          renderItem={(store) => (
+          renderItem={(store:any) => (
             <List.Item className="custom-list-item">
               <List.Item.Meta
                 avatar={
