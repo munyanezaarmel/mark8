@@ -32,6 +32,7 @@ import Link from "next/link";
 import StoresSidebar from "./components/SideBar/StoresSidebar";
 import { useMediaQuery } from "react-responsive";
 import NoProductsFound from "./components/NoProductFound";
+import { ignore } from "antd/es/theme/useToken";
 
 const { Title, Text } = Typography;
 const { Meta } = Card;
@@ -68,40 +69,42 @@ const HomePage = () => {
   });
   interface ProductsResponse {
     data: {
-      products: any[]; 
+      products: any[];
     };
   }
-  const {
-    data: productsData,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    status,
-  } = useInfiniteQuery({
-    queryKey: ["products"],
-    queryFn: fetchProducts,
-    getNextPageParam: (lastPage) => lastPage?.nextCursor,
-    initialPageParam: undefined,
-  });
-
   // const {
   //   data: productsData,
-  //   isLoading: isLoadingProducts,
-  //   error: productsError,
   //   fetchNextPage,
   //   hasNextPage,
   //   isFetchingNextPage,
+  //   status,
   // } = useInfiniteQuery({
   //   queryKey: ["products"],
-  //   queryFn: ({ pageParam = 1 }) =>
-  //     fetchProducts({ pageNumber: pageParam, recordsPerPage: 10 }),
-  //   getNextPageParam: (lastPage, pages) => {
-  //     if (lastPage.data.products.length < 10) return undefined;
-  //     return pages.length + 1;
-  //   },
+  //   queryFn: fetchProducts,
+  //   getNextPageParam: (lastPage) => lastPage?.nextCursor,
   //   initialPageParam: undefined,
   // });
-  
+
+
+
+  const {
+    data: productsData,
+    isLoading: isLoadingProducts,
+    error: productsError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["products"],
+     // @ts-ignore
+    queryFn: ({ pageParam = 1 }) =>
+      fetchProducts({ pageNumber: pageParam, recordsPerPage: 10 }),
+    getNextPageParam: (lastPage, pages) => {
+      if (lastPage.data.products.length < 10) return undefined;
+      return pages.length + 1;
+    },
+    initialPageParam: undefined,
+  });
 
   useEffect(() => {
     const savedCartItems = localStorage.getItem("cartItems");
@@ -129,12 +132,12 @@ const HomePage = () => {
   };
 
   const handleCategorySelect = (categoryId: string | "all") => {
-    setSelectedCategories((prev:any) => {
+    setSelectedCategories((prev: any) => {
       if (categoryId === "all") {
         return [];
       }
       if (prev.includes(categoryId)) {
-        return prev.filter((id:any) => id !== categoryId);
+        return prev.filter((id: any) => id !== categoryId);
       } else {
         return [...prev, categoryId];
       }
@@ -146,8 +149,8 @@ const HomePage = () => {
   };
   const filteredProducts =
     productsData?.pages
-      .flatMap((page:any) => page.data.products)
-      .filter((product:any) => {
+      .flatMap((page: any) => page.data.products)
+      .filter((product: any) => {
         const matchesSearch =
           product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           product.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -161,13 +164,13 @@ const HomePage = () => {
     setNoProductsFound(filteredProducts.length === 0);
   }, [filteredProducts]);
 
-  const removeFromCart = (productId:any) => {
+  const removeFromCart = (productId: any) => {
     setCartItems((prevItems) =>
-      prevItems.filter((item:any) => item.id !== productId)
+      prevItems.filter((item: any) => item.id !== productId)
     );
   };
 
-  const handleSaveProduct = (product:any) => {
+  const handleSaveProduct = (product: any) => {
     if (isProductSaved(product.id)) {
       removeProduct(product.id);
     } else {
@@ -175,7 +178,7 @@ const HomePage = () => {
     }
   };
 
-  const handleProductClick = (productId:any) => {
+  const handleProductClick = (productId: any) => {
     router.push(`/product/${productId}`);
   };
 
@@ -232,7 +235,7 @@ const HomePage = () => {
                     All
                   </Button>
                 </Col>
-                {categoriesData?.data.categories.map((category:any) => (
+                {categoriesData?.data.categories.map((category: any) => (
                   <Col key={category.id}>
                     <Button
                       className={`banner-button ${

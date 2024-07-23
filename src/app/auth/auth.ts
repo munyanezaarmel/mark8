@@ -73,27 +73,46 @@ export const fetchCategories = async (options?: FetchOptions): Promise<ApiRespon
     throw error;
   }
 };
-export const fetchProducts = async ({ pageParam = 1 }): Promise<any> => {
+export const fetchProducts = async ({
+  pageNumber = 1,
+  recordsPerPage = 10,
+}: FetchProductsParams): Promise<any> => {
   const token = sessionStorage.getItem("accessToken");
 
   if (!token) {
     throw new Error("No token found");
   }
-
-  const response = await axios.get(
-    `${API_URL}/products?pageNumber=${pageParam}&recordsPerPage=10`,
+  const response = await axios.get<any>(
+    `${API_URL}/products?pageNumber=${pageNumber}&recordsPerPage=${recordsPerPage}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     }
   );
-
-  return {
-    ...response.data,
-    nextCursor: response.data.products.length < 10 ? undefined : pageParam + 1,
-  };
+  return response.data;
 };
+// export const fetchProducts = async ({ pageParam = 1 }): Promise<any> => {
+//   const token = sessionStorage.getItem("accessToken");
+
+//   if (!token) {
+//     throw new Error("No token found");
+//   }
+
+//   const response = await axios.get(
+//     `${API_URL}/products?pageNumber=${pageParam}&recordsPerPage=10`,
+//     {
+//       headers: {
+//         Authorization: `Bearer ${token}`,
+//       },
+//     }
+//   );
+
+//   return {
+//     ...response.data,
+//     nextCursor: response.data.products.length < 10 ? undefined : pageParam + 1,
+//   };
+// };
 
 export const fetchProductDetails = async (id: any): Promise<any> => {
   const token = sessionStorage.getItem("accessToken");
