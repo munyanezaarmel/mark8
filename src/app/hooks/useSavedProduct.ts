@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 
 export function useSavedProducts() {
-  const [savedProducts, setSavedProducts] = useState([]);
+  const [savedProducts, setSavedProducts] = useState<any[]>([]);
 
   useEffect(() => {
     const saved = localStorage.getItem('savedProducts');
@@ -12,19 +12,19 @@ export function useSavedProducts() {
     }
   }, []);
 
-  const saveProduct = (product) => {
+  const saveProduct = (product:any) => {
     const updatedSaved = [...savedProducts, product];
     setSavedProducts(updatedSaved);
     localStorage.setItem('savedProducts', JSON.stringify(updatedSaved));
   };
 
-  const removeProduct = (productId) => {
+  const removeProduct = (productId:any) => {
     const updatedSaved = savedProducts.filter(p => p.id !== productId);
     setSavedProducts(updatedSaved);
     localStorage.setItem('savedProducts', JSON.stringify(updatedSaved));
   };
 
-  const isProductSaved = (productId) => {
+  const isProductSaved = (productId:any) => {
     return savedProducts.some(p => p.id === productId);
   };
 
