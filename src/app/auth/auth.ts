@@ -24,7 +24,7 @@ interface FetchProductsParams {
   recordsPerPage?: number;
 }
 
-export const signUp = async (userData: UserData): Promise<ApiResponse> => {
+export const signUp = async (userData: any): Promise<ApiResponse> => {
   try {
     console.log("Sending user data:", userData);
     const response = await axios.post(`${API_URL}/auth/signup`, userData);
