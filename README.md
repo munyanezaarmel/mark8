@@ -24,7 +24,7 @@ This application features a fully responsive e-commerce platform that allows use
 
 ## Getting Started
 
-You can view the deployed version of the application [here](https://mark8-lixy-ar955uuox-munyanezaarmels-projects.vercel.app/login).
+You can view the deployed version of the application [here](https://mark8-m31j.vercel.app/).
 
 ### Local Setup
 
@@ -32,6 +32,7 @@ You can view the deployed version of the application [here](https://mark8-lixy-a
 
    ```bash
    git clone https://github.com/yourusername/your-repository.git
+
    cd your-repository
    
    npm install
