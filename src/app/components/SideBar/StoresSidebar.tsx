@@ -6,10 +6,10 @@ import Link from "next/link";
 
 const { Text } = Typography;
 
-const StoresSidebar = ({ stores }) => {
+const StoresSidebar = ({ stores }: { stores: any }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredStores = stores.filter((store) =>
+  const filteredStores = stores.filter((store: any) =>
     store.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -27,7 +27,7 @@ const StoresSidebar = ({ stores }) => {
         <List
           itemLayout="horizontal"
           dataSource={filteredStores}
-          renderItem={(store:any) => (
+          renderItem={(store: any) => (
             <List.Item className="custom-list-item">
               <List.Item.Meta
                 avatar={

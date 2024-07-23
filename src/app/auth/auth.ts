@@ -2,13 +2,35 @@ import axios from "axios";
 
 const API_URL = "https://api.mark8.awesomity.rw";
 
-export const signUp = async (userData) => {
+interface UserData {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+}
+
+interface ApiResponse {
+  data: any;
+  message: string;
+}
+
+interface FetchOptions {
+  pageNumber?: number;
+  recordsPerPage?: number;
+}
+interface FetchProductsParams {
+  pageNumber?: number;
+  recordsPerPage?: number;
+}
+
+export const signUp = async (userData: UserData): Promise<ApiResponse> => {
   try {
     console.log("Sending user data:", userData);
     const response = await axios.post(`${API_URL}/auth/signup`, userData);
     console.log("API response:", response.data);
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error(
       "Error during signup:",
       error.response ? error.response.data : error.message
@@ -17,13 +39,13 @@ export const signUp = async (userData) => {
   }
 };
 
-export const login = async (userData) => {
+export const login = async (userData: any): Promise<ApiResponse> => {
   try {
     console.log("Sending user data:", userData);
     const response = await axios.post(`${API_URL}/auth/login`, userData);
     console.log("API response:", response.data);
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error(
       "Error during login:",
       error.response ? error.response.data : error.message
@@ -31,7 +53,7 @@ export const login = async (userData) => {
     throw error;
   }
 };
-export const fetchCategories = async () => {
+export const fetchCategories = async (options?: FetchOptions): Promise<ApiResponse> => {
   const token = sessionStorage.getItem("accessToken");
 
   if (!token) {
@@ -51,44 +73,43 @@ export const fetchCategories = async () => {
     throw error;
   }
 };
-export const fetchProducts = async ({
-  pageNumber = 1,
-  recordsPerPage = 10,
-}) => {
+export const fetchProducts = async ({ pageParam = 1 }): Promise<any> => {
   const token = sessionStorage.getItem("accessToken");
 
   if (!token) {
     throw new Error("No token found");
   }
+
   const response = await axios.get(
-    `${API_URL}/products?pageNumber=${pageNumber}&recordsPerPage=${recordsPerPage}`,
+    `${API_URL}/products?pageNumber=${pageParam}&recordsPerPage=10`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     }
   );
-  return response.data;
+
+  return {
+    ...response.data,
+    nextCursor: response.data.products.length < 10 ? undefined : pageParam + 1,
+  };
 };
 
-export const fetchProductDetails = async (id) => {
+export const fetchProductDetails = async (id: any): Promise<any> => {
   const token = sessionStorage.getItem("accessToken");
 
   if (!token) {
     throw new Error("No token found");
   }
-  const response = await axios.get(
-    `${API_URL}/products/${id}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+  const response = await axios.get(`${API_URL}/products/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
   return response.data.data;
 };
 
-export const fetchStores = async () => {
+export const fetchStores = async (): Promise<ApiResponse> => {
   const token = sessionStorage.getItem("accessToken");
 
   if (!token) {
@@ -109,8 +130,11 @@ export const fetchStores = async () => {
   }
 };
 
-
-export const fetchStoreProducts = async (storeId, pageNumber = 1, recordsPerPage = 3) => {
+export const fetchStoreProducts = async (
+  storeId: string,
+  pageNumber = 1,
+  recordsPerPage = 3
+) => {
   const token = sessionStorage.getItem("accessToken");
 
   if (!token) {
@@ -135,7 +159,11 @@ export const fetchStoreProducts = async (storeId, pageNumber = 1, recordsPerPage
     throw error;
   }
 };
-export const fetchProductsByCategory = async (categoryId, pageNumber = 1, recordsPerPage = 3) => {
+export const fetchProductsByCategory = async (
+  categoryId: string,
+  pageNumber = 1,
+  recordsPerPage = 3
+) => {
   const token = sessionStorage.getItem("accessToken");
 
   if (!token) {

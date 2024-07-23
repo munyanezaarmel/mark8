@@ -66,23 +66,42 @@ const HomePage = () => {
     queryKey: ["stores"],
     queryFn: fetchStores,
   });
-
+  interface ProductsResponse {
+    data: {
+      products: any[]; 
+    };
+  }
   const {
     data: productsData,
-    isLoading: isLoadingProducts,
-    error: productsError,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    status,
   } = useInfiniteQuery({
     queryKey: ["products"],
-    queryFn: ({ pageParam = 1 }) =>
-      fetchProducts({ pageNumber: pageParam, recordsPerPage: 10 }),
-    getNextPageParam: (lastPage, pages) => {
-      if (lastPage.data.products.length < 10) return undefined;
-      return pages.length + 1;
-    },
+    queryFn: fetchProducts,
+    getNextPageParam: (lastPage) => lastPage?.nextCursor,
+    initialPageParam: undefined,
   });
+
+  // const {
+  //   data: productsData,
+  //   isLoading: isLoadingProducts,
+  //   error: productsError,
+  //   fetchNextPage,
+  //   hasNextPage,
+  //   isFetchingNextPage,
+  // } = useInfiniteQuery({
+  //   queryKey: ["products"],
+  //   queryFn: ({ pageParam = 1 }) =>
+  //     fetchProducts({ pageNumber: pageParam, recordsPerPage: 10 }),
+  //   getNextPageParam: (lastPage, pages) => {
+  //     if (lastPage.data.products.length < 10) return undefined;
+  //     return pages.length + 1;
+  //   },
+  //   initialPageParam: undefined,
+  // });
+  
 
   useEffect(() => {
     const savedCartItems = localStorage.getItem("cartItems");
