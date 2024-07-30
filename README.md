@@ -1,20 +1,20 @@
 # Mark8
 
-Welcome to the **mark8** This application showcases the development of modern web applications using Next.js. The project aims to deliver a seamless user experience for viewing and purchasing products.
-
+Welcome to Mark8! This application showcases the development of modern web applications using Next.js. The project aims to deliver a seamless user experience for viewing and purchasing products.
 
 ## Tech Stack
 
-- **Framework**: Next.js
-- **Language**: TypeScript
-- **Libraries**: 
-  - **UI**: AntDesign
-  - **API Fetching**: React Query
+- **Framework:** Next.js
+- **Language:** TypeScript
+- **Libraries:**
+  - **UI:** AntDesign
+  - **API Fetching:** React Query
 
 ## Features
 
 This application features a fully responsive e-commerce platform that allows users to:
-- Browse  products
+
+- Browse products
 - Add products to the cart
 - Save favorite products
 - Filter products by category
@@ -24,25 +24,35 @@ This application features a fully responsive e-commerce platform that allows use
 
 ## Getting Started
 
-You can view the deployed version of the application [here](https://mark8-m31j.vercel.app/).
+You can view the deployed version of the application [here](#).
 
 ### Local Setup
 
- **Clone the Repository**
+1. Clone the Repository
 
-   ```bash
-   git clone https://github.com/yourusername/your-repository.git
+    ```bash
+    git clone https://github.com/yourusername/your-repository.git
+    ```
 
-   cd your-repository
-   
-   npm install
-   
-   npm run dev
+2. Navigate to the project directory
 
+    ```bash
+    cd your-repository
+    ```
 
+3. Install dependencies
 
+    ```bash
+    npm install
+    ```
 
+4. Run the development server
 
+    ```bash
+    npm run dev
+    ```
 
+## N.B: Things That I Didn't Cover
 
-   
+1. **Recommendation (You might also like)**: This feature is not available because the API to get products in the same category is not working, returning a 500 error.
+2. **Store Profile Images**: The store profile images are the same for all stores because the images are randomly generated in the API.
