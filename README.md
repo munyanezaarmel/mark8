@@ -56,3 +56,4 @@ You can view the deployed version of the application [here](#).
 
 1. **Recommendation (You might also like)**: This feature is not available because the API to get products in the same category is not working, returning a 500 error.
 2. **Store Profile Images**: The store profile images are the same for all stores because the images are randomly generated in the API.
+3.**Categories**: only accessories and swimwear have products so when filtering try to filter those categories only   
